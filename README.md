@@ -283,6 +283,49 @@ All requests and responses use the `application/json` format. Headers must suppl
 
 ---
 
+## 🐳 Docker Deployment
+
+The application is dockerized with a multi-stage Go build and containerized MySQL database using Docker Compose.
+
+### Prerequisites
+- [Docker](https://www.docker.com/get-started) and Docker Compose installed.
+- A configured `.env` file in the root directory (all values will be automatically loaded and forwarded to the backend service).
+
+### Running the Stack
+To build the Docker images and run the full backend stack (Go application + MySQL database):
+
+```bash
+docker compose up --build -d
+```
+
+This will:
+1. Build the multi-stage Go container.
+2. Spin up a MySQL 8.0 container.
+3. Automatically configure the database hostname overrides (`DB_HOST=db`).
+4. Mount the local `./log` directory to persist application logs.
+5. Expose the API on host port `8080` (or `APP_PORT` from your `.env`).
+
+### Useful Commands
+
+- **Stop Services**:
+  ```bash
+  docker compose down
+  ```
+- **Stop Services & Clean Volumes**:
+  ```bash
+  docker compose down -v
+  ```
+- **View Container Logs**:
+  ```bash
+  docker compose logs -f
+  ```
+- **Access Database inside Container**:
+  ```bash
+  docker exec -it project-workflow-db mysql -u root -proot@123 project_workflow
+  ```
+
+---
+
 ## 🔒 Security Practices
 
 1.  **Environment Isolation**: Sensitive credentials (database logins, AWS access tokens, SMTP keys) should remain strictly inside the `.env` file and must never be pushed to your version control repository.
