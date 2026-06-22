@@ -1,0 +1,37 @@
+services:
+  # MySQL database service
+  db:
+    image: mysql:8.0
+    container_name: workflow-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root@123
+      MYSQL_DATABASE: project_workflow
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # Go backend service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: workflow-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_PASSWORD=root@123
+      - DB_DATABASE_NAME=project_workflow
+      - APP_PORT=8080
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:

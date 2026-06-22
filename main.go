@@ -31,11 +31,14 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 	// Initialize the database
-	database.InitCampMgmtDB()
+	if err := database.InitCampMgmtDB(); err != nil {
+		log.Fatalf("Fatal: Database initialization failed: %v", err)
+	}
 	defer func() {
-		if db, err := database.AttendaceCmrfDB.DB(); err == nil {
-			logrus.Error("db not init")
-			db.Close()
+		if database.AttendaceCmrfDB != nil {
+			if db, err := database.AttendaceCmrfDB.DB(); err == nil {
+				db.Close()
+			}
 		}
 	}()
 	fmt.Println("DB Initialized !!!")

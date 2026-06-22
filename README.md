@@ -213,6 +213,59 @@ CREATE TABLE `project_approvals` (
 
 ---
 
+## 🐳 Docker & Production Deployment
+
+The project contains a production-ready `Dockerfile` and `docker-compose.yml` to run the application with all its database dependencies.
+
+### 1. Run Locally with Docker Compose
+You can build and start the Go backend along with a MySQL database container in one command:
+```bash
+docker compose up --build -d
+```
+*   The Go backend will connect automatically, auto-migrate database tables, and seed default workflow steps.
+*   The Go app is exposed on host port `8080` (`http://localhost:8080`).
+*   The MySQL database is mapped on host port `3307` to prevent conflicts with local SQL engines.
+
+### 2. Build & Push to AWS ECR (UAT Release)
+We have added a helper script `./build_and_push.sh` to automate the local build, ECR login, tagging, and upload process:
+```bash
+# Push default version (v0.0.6.5)
+./build_and_push.sh
+
+# Or push a custom version tag
+./build_and_push.sh v0.0.6.6
+```
+
+### 3. Server Deployment Commands (UAT)
+On your target server, authenticate with ECR, pull the image, and spin up the container:
+
+```bash
+# 1. Login to ECR
+aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 591051854019.dkr.ecr.ap-south-1.amazonaws.com
+
+# 2. Pull the UAT image
+docker pull 591051854019.dkr.ecr.ap-south-1.amazonaws.com/shiv-mitra:v0.0.6.5-attendance_cmrf-uat
+
+# 3. Stop old containers (if applicable)
+docker stop <old_container_ids_or_names>
+
+# 4. Spin up the new container with correct port and log volume mappings
+docker run --publish 8084:8084 \
+  --restart always \
+  --name shiv-mitra-v0.0.6.5-attendance_cmrf-uat \
+  -d \
+  -e APP_PORT=8084 \
+  -e LOG_DIR=/app/logs \
+  -v /var/logs/container/shiv-mitra:/app/logs \
+  591051854019.dkr.ecr.ap-south-1.amazonaws.com/shiv-mitra:v0.0.6.5-attendance_cmrf-uat
+```
+> [!NOTE]
+> *   `-e APP_PORT=8084`: Tells the Go app inside the container to listen on port `8084`, matching host network mapping.
+> *   `-e LOG_DIR=/app/logs`: Instructs the Go logger to write logs directly to the mounted directory.
+> *   `-v /var/logs/container/shiv-mitra:/app/logs`: Persists container logs on the host.
+
+---
+
 ## 🔌 API Endpoints Documentation
 
 All requests and responses use the `application/json` format. Headers must supply the `Authorization` header containing the JWT token for all protected endpoints.
@@ -280,6 +333,49 @@ All requests and responses use the `application/json` format. Headers must suppl
       "remarks": "Budget falls within parameters, moving to Branch Head."
     }
     ```
+
+---
+
+## 🐳 Docker Deployment
+
+The application is dockerized with a multi-stage Go build and containerized MySQL database using Docker Compose.
+
+### Prerequisites
+- [Docker](https://www.docker.com/get-started) and Docker Compose installed.
+- A configured `.env` file in the root directory (all values will be automatically loaded and forwarded to the backend service).
+
+### Running the Stack
+To build the Docker images and run the full backend stack (Go application + MySQL database):
+
+```bash
+docker compose up --build -d
+```
+
+This will:
+1. Build the multi-stage Go container.
+2. Spin up a MySQL 8.0 container.
+3. Automatically configure the database hostname overrides (`DB_HOST=db`).
+4. Mount the local `./log` directory to persist application logs.
+5. Expose the API on host port `8080` (or `APP_PORT` from your `.env`).
+
+### Useful Commands
+
+- **Stop Services**:
+  ```bash
+  docker compose down
+  ```
+- **Stop Services & Clean Volumes**:
+  ```bash
+  docker compose down -v
+  ```
+- **View Container Logs**:
+  ```bash
+  docker compose logs -f
+  ```
+- **Access Database inside Container**:
+  ```bash
+  docker exec -it project-workflow-db mysql -u root -proot@123 project_workflow
+  ```
 
 ---
 
