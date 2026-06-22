@@ -164,7 +164,7 @@ func toUserResponse(user *model.User) *dto.UserResponse {
 	}
 
 	return &dto.UserResponse{
-		ID:        user.ID,
+		ID:        int(user.ID),
 		UUID:      user.UUID,
 		Name:      user.Name,
 		Email:     user.Email,
