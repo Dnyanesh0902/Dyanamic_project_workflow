@@ -264,6 +264,36 @@ docker run --publish 8084:8084 \
 > *   `-e LOG_DIR=/app/logs`: Instructs the Go logger to write logs directly to the mounted directory.
 > *   `-v /var/logs/container/shiv-mitra:/app/logs`: Persists container logs on the host.
 
+### 4. Container Management & Useful Commands
+
+When running applications using Docker Compose, you don't need to manually lookup or manage Container IDs because you can reference services by their names (`backend` or `db` defined in `docker-compose.yml`).
+
+#### Find Container IDs & Names
+If you need to query the IDs of running containers:
+```bash
+# List all running containers on the system (shows IDs, Names, Status, Ports)
+docker ps
+
+# Retrieve ONLY the hex Container IDs managed by this Docker Compose stack
+docker compose ps -q
+```
+
+#### Manage Services using Service Names (No Container IDs Required)
+Use the service name in the command to control specific components:
+```bash
+# Stop only the Go backend service
+docker compose stop backend
+
+# Start the Go backend service
+docker compose start backend
+
+# View logs exclusively for the database service
+docker compose logs db
+
+# Open an interactive shell terminal inside the running backend container
+docker compose exec backend sh
+```
+
 ---
 
 ## 🔌 API Endpoints Documentation

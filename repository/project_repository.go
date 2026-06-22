@@ -35,7 +35,7 @@ func (r *projectRepository) Create(req dto.ProjectRepoCreateRequest) (*model.Pro
 		Description: req.Description,
 		Budget:      req.Budget,
 		Status:      "Pending",
-		CreatedBy:   req.UserID,
+		CreatedBy:   int32(req.UserID),
 	}
 	if err := r.db.Create(project).Error; err != nil {
 		logrus.Errorf("DB Error creating project %s (user: %d): %v", req.ProjectName, req.UserID, err)
@@ -224,8 +224,8 @@ func (r *projectRepository) GetWorkflowSteps() ([]model.WorkflowStep, error) {
 
 func (r *projectRepository) CreateApproval(req dto.ProjectApprovalCreateRequest) error {
 	approval := &model.ProjectApproval{
-		ProjectID: req.ProjectID,
-		StepID:    req.StepID,
+		ProjectID: int32(req.ProjectID),
+		StepID:    int32(req.StepID),
 		Status:    req.Status,
 	}
 	if err := r.db.Create(approval).Error; err != nil {
