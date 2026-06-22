@@ -1,0 +1,17 @@
+/storage
+/signature
+.env
+uat.env
+prod.env
+dr.env
+go.sum
+go.mod
+Dockerfile
+uat.env
+prod.env
+local.env
+log
+makefile
+awsdeploycommands
+OldDockerfile.txt
+.DS_Store
