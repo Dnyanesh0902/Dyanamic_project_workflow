@@ -56,8 +56,8 @@ func (s *projectService) Create(req dto.ProjectServiceCreateRequest) (*dto.Proje
 
 	for _, step := range steps {
 		err := s.repo.CreateApproval(dto.ProjectApprovalCreateRequest{
-			ProjectID: project.ID,
-			StepID:    step.ID,
+			ProjectID: int(project.ID),
+			StepID:    int(step.ID),
 			Status:    "Pending",
 		})
 		if err != nil {
