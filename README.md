@@ -264,35 +264,78 @@ docker run --publish 8084:8084 \
 > *   `-e LOG_DIR=/app/logs`: Instructs the Go logger to write logs directly to the mounted directory.
 > *   `-v /var/logs/container/shiv-mitra:/app/logs`: Persists container logs on the host.
 
-### 4. Container Management & Useful Commands
+### 4. Container Management & Orchestration (Cheat Sheet)
 
-When running applications using Docker Compose, you don't need to manually lookup or manage Container IDs because you can reference services by their names (`backend` or `db` defined in `docker-compose.yml`).
+In multi-container environments, Docker Compose abstracts raw container manipulation. Instead of copying generated **Container IDs** (e.g. `601fcf9d3fc3`), you can manage services directly using their logical service names (`backend` or `db`) defined in `docker-compose.yml`.
 
-#### Find Container IDs & Names
-If you need to query the IDs of running containers:
-```bash
-# List all running containers on the system (shows IDs, Names, Status, Ports)
-docker ps
+#### 🔍 Service Discovery & Metadata
+Use these commands to locate container details, check network ports, and extract IDs:
 
-# Retrieve ONLY the hex Container IDs managed by this Docker Compose stack
-docker compose ps -q
-```
+*   **View Active Container Details:**
+    ```bash
+    docker ps
+    ```
+    *Lists all running containers on the system (including ID, Name, Uptime, and Port bindings).*
+*   **Extract Compose Container IDs:**
+    ```bash
+    docker compose ps -q
+    ```
+    *Returns only the raw hex container IDs of the services in this compose project (highly useful for scripting).*
+*   **Inspect Container Configuration JSON:**
+    ```bash
+    docker inspect <container_id_or_name>
+    ```
+    *Fetches the raw configuration details, environment variables, mounts, and network IPs.*
 
-#### Manage Services using Service Names (No Container IDs Required)
-Use the service name in the command to control specific components:
-```bash
-# Stop only the Go backend service
-docker compose stop backend
+#### 🛠️ Service Lifecycle Operations
+Control specific services directly using their compose service names without looking up IDs:
 
-# Start the Go backend service
-docker compose start backend
+*   **Stop a Specific Service:**
+    ```bash
+    docker compose stop backend
+    ```
+*   **Start a Specific Service:**
+    ```bash
+    docker compose start backend
+    ```
+*   **Restart a Specific Service:**
+    ```bash
+    docker compose restart backend
+    ```
 
-# View logs exclusively for the database service
-docker compose logs db
+#### 📊 Monitoring & Interactive Debugging
+Monitor server logs in real-time or access a shell inside the container virtual environment:
 
-# Open an interactive shell terminal inside the running backend container
-docker compose exec backend sh
-```
+*   **Stream Service Logs (Real-time tailing):**
+    ```bash
+    docker compose logs -f db
+    ```
+*   **Stream Last 50 Log Lines:**
+    ```bash
+    docker compose logs --tail 50 -f backend
+    ```
+*   **Access Container Shell Environment:**
+    ```bash
+    docker compose exec backend sh
+    ```
+    *Opens an interactive shell terminal (`sh`) inside the container sandbox to run inspection commands.*
+
+#### 🧹 Infrastructure Cleanup
+Perform cleanup operations to reclaim system disk space:
+
+*   **Stop & Delete Stack Containers/Networks:**
+    ```bash
+    docker compose down
+    ```
+*   **Stop & Delete Stack Containers, Networks, and Volumes:**
+    ```bash
+    docker compose down -v
+    ```
+    *WARNING: This deletes the MySQL database data volume.*
+*   **Prune Dangling Containers and Images:**
+    ```bash
+    docker system prune -f
+    ```
 
 ---
 
