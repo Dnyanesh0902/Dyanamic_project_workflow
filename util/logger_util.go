@@ -13,7 +13,7 @@ import (
 var currentLogDate string // Store the current log date
 
 func InitializeLogger() {
-	logDir := "./log"
+	logDir := getLogDir()
 	currentLogDate = time.Now().Format("2006-01-02")
 	logFileName := getLogFileName()
 
@@ -51,7 +51,7 @@ func getLogFileName() string {
 }
 
 func createLogFile() {
-	logDir := "./log"
+	logDir := getLogDir()
 	logFileName := getLogFileName()
 	file, err := os.OpenFile(path.Join(logDir, logFileName), os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
@@ -70,4 +70,12 @@ func createLogDirectory(logDir string) error {
 		}
 	}
 	return nil
+}
+
+func getLogDir() string {
+	logDir := os.Getenv("LOG_DIR")
+	if logDir == "" {
+		return "./log"
+	}
+	return logDir
 }
