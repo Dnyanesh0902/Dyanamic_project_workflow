@@ -42,7 +42,7 @@ func (r *userRepository) Create(req dto.UserCreateRequest, uuid string) (*model.
 
 func (r *userRepository) GetByEmail(req dto.UserByEmailRequest) (*model.User, error) {
 	var user model.User
-	if err := r.db.Where("email = ?", req.Email).First(&user).Error; err != nil {
+	if err := r.db.Where("email = ?", req.Email).Scan(&user).Error; err != nil {
 		if err != gorm.ErrRecordNotFound {
 			logrus.Errorf("DB Error getting user by email %s: %v", req.Email, err)
 		}
@@ -53,7 +53,7 @@ func (r *userRepository) GetByEmail(req dto.UserByEmailRequest) (*model.User, er
 
 func (r *userRepository) GetByUUID(req dto.UserByUUIDRequest) (*model.User, error) {
 	var user model.User
-	if err := r.db.Where("uuid = ?", req.UUID).First(&user).Error; err != nil {
+	if err := r.db.Where("uuid = ?", req.UUID).Scan(&user).Error; err != nil {
 		if err != gorm.ErrRecordNotFound {
 			logrus.Errorf("DB Error getting user by UUID %s: %v", req.UUID, err)
 		}
@@ -64,7 +64,7 @@ func (r *userRepository) GetByUUID(req dto.UserByUUIDRequest) (*model.User, erro
 
 func (r *userRepository) List() ([]model.User, error) {
 	var users []model.User
-	if err := r.db.Find(&users).Error; err != nil {
+	if err := r.db.Scan(&users).Error; err != nil {
 		logrus.Errorf("DB Error listing users: %v", err)
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (r *userRepository) List() ([]model.User, error) {
 
 func (r *userRepository) Update(req dto.UserUpdateRequest) (*model.User, error) {
 	var user model.User
-	if err := r.db.Where("uuid = ?", req.UUID).First(&user).Error; err != nil {
+	if err := r.db.Where("uuid = ?", req.UUID).Scan(&user).Error; err != nil {
 		if err != gorm.ErrRecordNotFound {
 			logrus.Errorf("DB Error finding user UUID %s for update: %v", req.UUID, err)
 		}
